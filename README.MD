@@ -18,10 +18,19 @@ Currently (As 2025 November 15) this project runs on desktop computers if stream
 
 # Expected Future Work - Immidiate Attention
 1. Crop feature for images - With current application it crops to the center. If the snake is in the corner of the images there is a high possibility of misclassification.
-2. Create a web app where user can access the service online.(Storage efficient - But relies on ) 
+2. Create a web app where user can access the service online.(Storage efficient - But relies on network.) 
+3. Distill the model and create a offline mobile applcication. (No network needed. But consuumes lot of storage & less accurate.)
 
 
 
 # Expected Future Works - Long Term
 1. Create a snake rescuers contact system along with their phone numbers and covering areas. 
 2. Include the detailed descriptions about the snakes and their local names. 
+3. Create an alert system with snake spotter service - Very complex design & need a reliable infrastructure. 
+
+# Architecture
+Framework: PyTorch
+Model: Convext Small
+
+# Collabarations
+For collabarion and to use this model contact me via email: saluwadanagedaradinindu@gmail.com
