@@ -1,42 +1,116 @@
-#root {
-  max-width: 1280px;
+/* General App Container */
+.app-container {
+  max-width: 800px;
   margin: 0 auto;
   padding: 2rem;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   text-align: center;
+  color: #333;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+header h1 {
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+header p {
+  color: #7f8c8d;
+  margin-top: 0;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+/* Upload Section */
+.upload-section {
+  background: #f8f9fa;
+  border: 2px dashed #bdc3c7;
+  border-radius: 10px;
+  padding: 2rem;
+  margin: 2rem 0;
+  transition: border-color 0.3s;
 }
 
-.card {
-  padding: 2em;
+.upload-section:hover {
+  border-color: #3498db;
 }
 
-.read-the-docs {
-  color: #888;
+/* Crop Container */
+.crop-container {
+  margin: 2rem 0;
+  background: #fff;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.predict-btn {
+  background-color: #2980b9;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  font-size: 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: background 0.3s;
+}
+
+.predict-btn:disabled {
+  background-color: #95a5a6;
+  cursor: not-allowed;
+}
+
+.predict-btn:hover:not(:disabled) {
+  background-color: #3498db;
+}
+
+/* Result Card - The "Designed" part */
+.result-card {
+  margin-top: 2rem;
+  padding: 2rem;
+  border-radius: 12px;
+  color: white;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+  animation: slideUp 0.5s ease-out;
+}
+
+.result-card h2 {
+  margin: 0;
+  font-size: 2rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.result-card .badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.2);
+  padding: 5px 15px;
+  border-radius: 20px;
+  margin: 10px 0;
+  font-weight: bold;
+}
+
+/* Venom Status Colors */
+.result-card.high {
+  background: linear-gradient(135deg, #e74c3c, #c0392b); /* Red */
+}
+
+.result-card.moderate {
+  background: linear-gradient(135deg, #e67e22, #d35400); /* Orange */
+}
+
+.result-card.mild {
+  background: linear-gradient(135deg, #f1c40f, #f39c12); /* Yellow/Gold */
+  color: #333; /* Dark text for contrast */
+}
+
+.result-card.non {
+  background: linear-gradient(135deg, #2ecc71, #27ae60); /* Green */
+}
+
+.result-card.unknown {
+  background: linear-gradient(135deg, #95a5a6, #7f8c8d); /* Grey */
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
