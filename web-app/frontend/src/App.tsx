@@ -1,43 +1,56 @@
-import { useState, useRef } from 'react'
-import ReactCrop, { centerCrop, makeAspectCrop } from 'react-image-crop'
+import { useState, useRef, ChangeEvent, SyntheticEvent } from 'react'
+import ReactCrop, { 
+  centerCrop, 
+  makeAspectCrop, 
+} from 'react-image-crop'
+import type { Crop, PixelCrop } from 'react-image-crop'
 import 'react-image-crop/dist/ReactCrop.css'
 import './App.css' 
 
-// Helper to center the crop initially
-function centerAspectCrop(mediaWidth, mediaHeight, aspect) {
+interface PredictionResult {
+  species: string;
+  venom_status: string;
+  confidence: string;
+}
+
+// Helper: Centers the crop and forces 1:1 Aspect Ratio
+function centerAspectCrop(mediaWidth: number, mediaHeight: number) {
   return centerCrop(
-    makeAspectCrop({ unit: '%', width: 90 }, aspect, mediaWidth, mediaHeight),
+    makeAspectCrop(
+      { unit: '%', width: 90 }, 
+      1, // <--- 1 = 1:1 Aspect Ratio (Square)
+      mediaWidth, 
+      mediaHeight
+    ),
     mediaWidth,
     mediaHeight
   )
 }
 
 export default function App() {
-  const [imgSrc, setImgSrc] = useState('')
-  const [crop, setCrop] = useState()
-  const [completedCrop, setCompletedCrop] = useState()
-  const [result, setResult] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const imgRef = useRef(null)
+  const [imgSrc, setImgSrc] = useState<string>('')
+  const [crop, setCrop] = useState<Crop>()
+  const [completedCrop, setCompletedCrop] = useState<PixelCrop>()
+  const [result, setResult] = useState<PredictionResult | null>(null)
+  const [loading, setLoading] = useState<boolean>(false)
+  const imgRef = useRef<HTMLImageElement>(null)
 
-  // 1. Handle File Upload
-  function onSelectFile(e) {
+  function onSelectFile(e: ChangeEvent<HTMLInputElement>) {
     if (e.target.files && e.target.files.length > 0) {
-      setCrop(undefined) // Reset crop
-      setResult(null)    // Reset previous results
+      setCrop(undefined)
+      setResult(null)
       const reader = new FileReader()
       reader.addEventListener('load', () => setImgSrc(reader.result?.toString() || ''))
       reader.readAsDataURL(e.target.files[0])
     }
   }
 
-  // 2. Initialize Crop Area
-  function onImageLoad(e) {
+  function onImageLoad(e: SyntheticEvent<HTMLImageElement>) {
     const { width, height } = e.currentTarget
-    setCrop(centerAspectCrop(width, height, 16 / 9))
+    // Initialize with 1:1 Aspect Ratio
+    setCrop(centerAspectCrop(width, height))
   }
 
-  // 3. Generate the cropped image Blob and send to API
   async function handlePredict() {
     if (!completedCrop || !imgRef.current) return;
 
@@ -46,11 +59,13 @@ export default function App() {
     const scaleX = image.naturalWidth / image.width;
     const scaleY = image.naturalHeight / image.height;
     
+    // Canvas will be the size of the crop
     canvas.width = completedCrop.width;
     canvas.height = completedCrop.height;
+    
     const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
-    // Draw the cropped area onto a canvas
     ctx.drawImage(
       image,
       completedCrop.x * scaleX,
@@ -63,25 +78,23 @@ export default function App() {
       completedCrop.height
     );
 
-    // Convert canvas to blob and send to backend
     canvas.toBlob(async (blob) => {
       if (!blob) return;
       setLoading(true);
-      
       const formData = new FormData();
       formData.append('file', blob, 'snake_crop.jpg');
 
       try {
-        // NOTE: Ensure your backend is running on localhost:8000
-        const response = await fetch('http://127.0.0.1:8000/predict', {
+        const response = await fetch('http://127.0.0.1:8001/predict', {
           method: 'POST',
           body: formData,
         });
+        if (!response.ok) throw new Error('Network response was not ok');
         const data = await response.json();
         setResult(data);
       } catch (error) {
-        console.error("Error identifying snake:", error);
-        alert("Failed to connect to the server.");
+        console.error("Error:", error);
+        alert("Server error. Check terminal.");
       } finally {
         setLoading(false);
       }
@@ -89,36 +102,59 @@ export default function App() {
   }
 
   return (
-    <div className="app-container">
-      <header>
-        <h1>🐍 Python Eye</h1>
-        <p>AI Snake Identification & Safety System</p>
-      </header>
+    <div className="main-wrapper">
+      <div className="app-card">
+        <header className="app-header">
+          <h1>🐍 Python Eye</h1>
+          <p>AI-Powered Snake Identification</p>
+        </header>
 
-      <div className="upload-section">
-        <input type="file" accept="image/*" onChange={onSelectFile} />
+        {/* Upload Area */}
+        <div className="upload-container">
+          <label className="file-upload-label">
+            <input type="file" accept="image/*" onChange={onSelectFile} />
+            <span>{imgSrc ? "Choose a different photo" : "📁 Upload Snake Photo"}</span>
+          </label>
+        </div>
+
+        {/* Workspace: Crop & Predict */}
+        {imgSrc && (
+          <div className="workspace">
+            <div className="cropper-wrapper">
+              <p className="instruction">Adjust box to frame the snake head</p>
+              <ReactCrop 
+                crop={crop} 
+                aspect={1} // <--- FORCE 1:1 RATIO HERE
+                onChange={(c) => setCrop(c)} 
+                onComplete={(c) => setCompletedCrop(c)}
+              >
+                <img ref={imgRef} alt="Upload" src={imgSrc} onLoad={onImageLoad} />
+              </ReactCrop>
+            </div>
+            
+            <button onClick={handlePredict} disabled={loading} className="action-btn">
+              {loading ? (
+                <span className="loader">Analyzing...</span>
+              ) : (
+                "Identify Species 🔍"
+              )}
+            </button>
+          </div>
+        )}
+
+        {/* Results */}
+        {result && (
+          <div className={`result-card ${result.venom_status.toLowerCase().split(' ')[0]}`}>
+            <div className="result-header">
+              <span className="confidence-pill">{result.confidence} Match</span>
+            </div>
+            <h2>{result.species}</h2>
+            <div className="venom-badge">
+              ⚠️ {result.venom_status} Venom
+            </div>
+          </div>
+        )}
       </div>
-
-      {/* Cropper View */}
-      {imgSrc && (
-        <div className="crop-container">
-          <ReactCrop crop={crop} onChange={(_, percentCrop) => setCrop(percentCrop)} onComplete={(c) => setCompletedCrop(c)}>
-            <img ref={imgRef} alt="Upload" src={imgSrc} onLoad={onImageLoad} style={{ maxHeight: '400px' }} />
-          </ReactCrop>
-          <button onClick={handlePredict} disabled={loading} className="predict-btn">
-            {loading ? "Analyzing..." : "Identify Snake"}
-          </button>
-        </div>
-      )}
-
-      {/* Results View */}
-      {result && (
-        <div className={`result-card ${result.venom_status.toLowerCase()}`}>
-          <h2>{result.species}</h2>
-          <div className="badge">{result.venom_status} Venom</div>
-          <p>Confidence: {result.confidence}</p>
-        </div>
-      )}
     </div>
   )
 }

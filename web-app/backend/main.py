@@ -63,7 +63,11 @@ def load_model():
 def load_venom_data():
     try:
         df = pd.read_csv(VENOM_CSV_PATH)
-        # Create a dictionary for fast lookup: {"Snake Name": "Venom Status"}
+        # Strip whitespace from names to ensure matches
+        df['Snake_Name'] = df['Snake_Name'].str.strip()
+        df['Venom_Status'] = df['Venom_Status'].str.strip()
+        
+        # Create dictionary
         return pd.Series(df.Venom_Status.values, index=df.Snake_Name).to_dict()
     except Exception as e:
         print(f"Warning: Could not load CSV. {e}")
@@ -87,24 +91,22 @@ def home():
 @app.post("/predict")
 async def predict_snake(file: UploadFile = File(...)):
     try:
-        # Read image
         image_data = await file.read()
         image = Image.open(io.BytesIO(image_data)).convert('RGB')
         
-        # Preprocess
         img_tensor = transform(image).unsqueeze(0).to(device)
         
-        # Inference
         with torch.no_grad():
             outputs = model(img_tensor)
             probabilities = torch.nn.functional.softmax(outputs, dim=1)
             
-        # Get Top Prediction
         top_prob, top_idx = torch.max(probabilities, 1)
         confidence = top_prob.item()
         class_idx = top_idx.item()
         
-        predicted_name = CLASS_NAMES[class_idx]
+        predicted_name = CLASS_NAMES[class_idx].strip() # Strip whitespace from model output
+        
+        # Safe Lookup: usage of .get() prevents the KeyError crash
         venom_status = venom_data.get(predicted_name, "Unknown")
         
         return {
@@ -114,4 +116,5 @@ async def predict_snake(file: UploadFile = File(...)):
         }
 
     except Exception as e:
+        print(f"Error during prediction: {e}") # Print error to terminal
         raise HTTPException(status_code=500, detail=str(e))
