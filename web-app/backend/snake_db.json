@@ -1,0 +1,166 @@
+{
+    "Banded Kukri Snake": {
+        "venom": "Non",
+        "scientific": "Oligodon arnensis"
+    },
+    "Barred Wolf Snake": {
+        "venom": "Non",
+        "scientific": "Lycodon striatus"
+    },
+    "Beaked Sea Snake": {
+        "venom": "High",
+        "scientific": "Enhydrina schistosa"
+    },
+    "Black-Headed Snake": {
+        "venom": "Non",
+        "scientific": "Sibynophis subpunctatus"
+    },
+    "Blossom Krait": {
+        "venom": "Mod",
+        "scientific": "Rhabdophis ceylonensis"
+    },
+    "Boie's Rough-sided Snake": {
+        "venom": "Non",
+        "scientific": "Aspidura brachyorrhos"
+    },
+    "Boulenger's Bronzeback": {
+        "venom": "Non",
+        "scientific": "Dendrelaphis bifrenalis"
+    },
+    "Boulenger's Keelback": {
+        "venom": "Non",
+        "scientific": "Fowlea asperrimus"
+    },
+    "Brahminy Blindsnake": {
+        "venom": "Non",
+        "scientific": "Indotyphlops braminus"
+    },
+    "Buff Striped Keelback": {
+        "venom": "Non",
+        "scientific": "Amphiesma stolatum"
+    },
+    "Ceylon Krait": {
+        "venom": "High",
+        "scientific": "Bungarus ceylonicus"
+    },
+    "Ceylon Wolf Snake": {
+        "venom": "Non",
+        "scientific": "Lycodon carinatus"
+    },
+    "Ceylonese Cylinder Snake": {
+        "venom": "Non",
+        "scientific": "Cylindrophis maculatus"
+    },
+    "Cobra": {
+        "venom": "High",
+        "scientific": "Naja Naja"
+    },
+    "Common Bronzeback Tree Snake": {
+        "venom": "Non",
+        "scientific": "Dendrelaphis tristis"
+    },
+    "Common Krait": {
+        "venom": "High",
+        "scientific": "Bungarus caeruleus"
+    },
+    "Common Rough-sided Snake": {
+        "venom": "Non",
+        "scientific": "Aspidura trachyprocta"
+    },
+    "Dumaril's Kukri Snake": {
+        "venom": "Non",
+        "scientific": "Oligodon sublineatus"
+    },
+    "Forsten's Cat Snake": {
+        "venom": "Mild",
+        "scientific": "Boiga forsteni"
+    },
+    "Golden Tree Snake": {
+        "venom": "Non",
+        "scientific": "Chrysopelea ornata"
+    },
+    "Green Keelback": {
+        "venom": "Non",
+        "scientific": "Rhabdophis plumbicolor"
+    },
+    "Hypnale Hypnale": {
+        "venom": "High",
+        "scientific": "Hypnale Hypnale"
+    },
+    "Indian Wolf Snake": {
+        "venom": "Non",
+        "scientific": "Lycodon aulicus"
+    },
+    "Long-nosed Whipsnake": {
+        "venom": "Mild",
+        "scientific": "Ahaetulla nasuta"
+    },
+    "Lowland Hump-nosed Viper": {
+        "venom": "High",
+        "scientific": "Hypnale zara"
+    },
+    "Oriental Rat Snake": {
+        "venom": "Non",
+        "scientific": "Ptyas mucosa"
+    },
+    "Ranawana's Cat Snake": {
+        "venom": "Mild",
+        "scientific": "Boiga ranawanei"
+    },
+    "Rock Python": {
+        "venom": "Non",
+        "scientific": "Python molurus"
+    },
+    "Russel-s Viper": {
+        "venom": "High",
+        "scientific": "Daboia russelii"
+    },
+    "Russell's Wolf Snake": {
+        "venom": "Non",
+        "scientific": "Lycodon anamallensis"
+    },
+    "Schokar's Bronzeback": {
+        "venom": "Non",
+        "scientific": "Dendrelaphis schokari"
+    },
+    "Sinharaja Tree Snake": {
+        "venom": "Non",
+        "scientific": "Dendrelaphis effrenis"
+    },
+    "Slender Coralsnake": {
+        "venom": "High",
+        "scientific": "Calliophis melanurus"
+    },
+    "Spectacled Cobra": {
+        "venom": "High",
+        "scientific": "Naja Naja"
+    },
+    "Sri Lankan Cat Snake": {
+        "venom": "Mild",
+        "scientific": "Boiga ceylonensis"
+    },
+    "Sri Lankan Flying Snake": {
+        "venom": "Mild",
+        "scientific": "Chrysopelea taprobanica"
+    },
+    "Sri Lankan Green Pit Viper": {
+        "venom": "Mod",
+        "scientific": "Craspedocephalus trigonocephalus"
+    },
+    "Sri Lankan Keelback": {
+        "venom": "Non",
+        "scientific": "Fowlea flavipunctatus"
+    },
+    "Sri Lankan Krait": {
+        "venom": "High",
+        "scientific": "Bungarus ceylonicus"
+    },
+    "Sri Lankan Pipe Snake": {
+        "venom": "Non",
+        "scientific": "Cylindrophis maculatus"
+    },
+    "Trinket Snake": {
+        "venom": "Non",
+        "scientific": "Coelognathus helena"
+    }
+}

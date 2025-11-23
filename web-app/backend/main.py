@@ -5,16 +5,15 @@ import torch.nn as nn
 from torchvision import transforms
 from torchvision.models import convnext_small, ConvNeXt_Small_Weights
 from PIL import Image
-import pandas as pd
+import json
 import io
+import os
 
-# --- Configuration ---
 MODEL_PATH = "final_V3_Simplified_Two_Phase_best_model.pt"
-VENOM_CSV_PATH = "Snake_Names_And_Venom.csv"
+VENOM_JSON_PATH = "snake_db.json"
 NUM_CLASSES = 41
 IMG_SIZE = 224
 
-# Same class list as your app.py
 CLASS_NAMES = [
     'Banded Kukri Snake', 'Barred Wolf Snake', 'Beaked Sea Snake', 
     'Black-Headed Snake', 'Blossom Krait', "Boie's Rough-sided Snake", 
@@ -34,50 +33,47 @@ CLASS_NAMES = [
 
 app = FastAPI()
 
-# Allow the frontend to talk to this backend (CORS)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # For development only. In production, set to your frontend domain.
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# --- Load Model & Data (Runs once at startup) ---
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def load_model():
-    print("Loading model...")
-    weights = ConvNeXt_Small_Weights.DEFAULT
-    model = convnext_small(weights=weights)
-    # Replicate the modification from your app.py
-    model.classifier[2] = nn.Linear(in_features=768, out_features=NUM_CLASSES)
-    
-    # Load state dict (map_location handles CPU/GPU automatically)
-    state_dict = torch.load(MODEL_PATH, map_location=device)
-    model.load_state_dict(state_dict)
-    model.to(device)
-    model.eval()
-    return model
+    try:
+        weights = ConvNeXt_Small_Weights.DEFAULT
+        model = convnext_small(weights=weights)
+        model.classifier[2] = nn.Linear(in_features=768, out_features=NUM_CLASSES)
+        state_dict = torch.load(MODEL_PATH, map_location=device)
+        model.load_state_dict(state_dict)
+        model.to(device)
+        model.eval()
+        return model
+    except Exception as e:
+        print(f"Error loading model: {e}")
+        raise e
 
 def load_venom_data():
     try:
-        df = pd.read_csv(VENOM_CSV_PATH)
-        # Strip whitespace from names to ensure matches
-        df['Snake_Name'] = df['Snake_Name'].str.strip()
-        df['Venom_Status'] = df['Venom_Status'].str.strip()
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        json_path = os.path.join(current_dir, VENOM_JSON_PATH)
         
-        # Create dictionary
-        return pd.Series(df.Venom_Status.values, index=df.Snake_Name).to_dict()
+        with open(json_path, "r") as f:
+            data = json.load(f)
+        
+            
+        return data
     except Exception as e:
-        print(f"Warning: Could not load CSV. {e}")
+        print(f"Error loading JSON DB: {e}")
         return {}
 
-# Global variables
 model = load_model()
 venom_data = load_venom_data()
 
-# Define Transforms
 transform = transforms.Compose([
     transforms.Resize((IMG_SIZE, IMG_SIZE)),
     transforms.ToTensor(),
@@ -100,21 +96,33 @@ async def predict_snake(file: UploadFile = File(...)):
             outputs = model(img_tensor)
             probabilities = torch.nn.functional.softmax(outputs, dim=1)
             
-        top_prob, top_idx = torch.max(probabilities, 1)
-        confidence = top_prob.item()
-        class_idx = top_idx.item()
+        top5_prob, top5_idx = torch.topk(probabilities, 5)
         
-        predicted_name = CLASS_NAMES[class_idx].strip() # Strip whitespace from model output
-        
-        # Safe Lookup: usage of .get() prevents the KeyError crash
-        venom_status = venom_data.get(predicted_name, "Unknown")
-        
+        predictions = []
+        for i in range(5):
+            confidence = top5_prob[0][i].item()
+            class_idx = top5_idx[0][i].item()
+            name = CLASS_NAMES[class_idx].strip()
+            
+            # Safe lookup. Defaults to Unknown/None if keys are missing
+            info = venom_data.get(name, {})
+            scientific = info.get("scientific", "Unknown")
+            venom = info.get("venom", "Unknown")
+            description = info.get("description", None) 
+            
+            predictions.append({
+                "species": name,
+                "scientific_name": scientific,
+                "venom_status": venom,
+                "description": description,
+                "confidence": f"{confidence*100:.2f}%"
+            })
+
         return {
-            "species": predicted_name,
-            "venom_status": venom_status,
-            "confidence": f"{confidence*100:.2f}%"
+            "main": predictions[0],
+            "others": predictions[1:] 
         }
 
     except Exception as e:
-        print(f"Error during prediction: {e}") # Print error to terminal
+        print(f"Error during prediction: {e}")
         raise HTTPException(status_code=500, detail=str(e))
